@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'Weebur frontend assignment',
@@ -13,7 +16,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="relative mx-auto w-[1200px] flex flex-col pb-[120px]">{children}</body>
+      <body className={inter.className}>
+        <main className="relative mx-auto w-[1200px] flex flex-col pb-[120px]">{children}</main>
+      </body>
     </html>
   );
 }
