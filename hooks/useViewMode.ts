@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 type ViewMode = 'grid' | 'list';
 
 const VIEW_MODE_KEY = 'viewMode';
-const EXPIRE_TIME = 5; // 24 hours in milliseconds
+const EXPIRE_TIME = 5;
 
 interface ViewModeStorage {
   mode: ViewMode;

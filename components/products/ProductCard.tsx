@@ -9,7 +9,7 @@ export default function ProductCard({
 }) {
   return (
     <div
-      className={`w-full h-full flex bg-white rounded-lg shadow-md gap-6 py-2 justify-center ${
+      className={`w-full h-full flex bg-white rounded-lg shadow-md border border-gray-300 gap-6 py-2 justify-center ${
         viewMode === 'grid' ? 'flex-col pb-2' : ''
       }`}
     >

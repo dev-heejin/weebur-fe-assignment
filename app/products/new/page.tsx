@@ -1,3 +1,5 @@
+import AddProductForm from '@/components/products/AddProductForm';
+
 export default function NewProductPage() {
-  return <h1>NEW PAGE</h1>;
+  return <AddProductForm />;
 }
