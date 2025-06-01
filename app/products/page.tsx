@@ -1,8 +1,12 @@
-import { ProductViewModeClient } from '@/components/products';
+import { ProductViewModeClient } from '@/app/products/components';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import { getProducts } from '@/app/products/api/getProducts';
+import { getProducts } from '@/lib/queries/getProducts';
+import { cookies } from 'next/headers';
 
 export default async function ProductsPage() {
+  const cookieStore = await cookies();
+  const viewMode = cookieStore.get('viewMode')!.value;
+
   const queryClient = new QueryClient();
 
   await queryClient.prefetchQuery({
@@ -15,7 +19,7 @@ export default async function ProductsPage() {
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
-      <ProductViewModeClient />;
+      <ProductViewModeClient initialViewMode={viewMode} />
     </HydrationBoundary>
   );
 }

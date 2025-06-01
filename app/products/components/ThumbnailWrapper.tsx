@@ -11,16 +11,10 @@ export default function ThumbnailWrapper({
 }) {
   return (
     <div
-      className="shrink-0 overflow-hidden flex justify-center items-center"
+      className="w-full aspect-square items-center justify-center overflow-hidden"
       style={{ width: size, height: size }}
     >
-      <Image
-        src={src}
-        alt={alt}
-        width={size}
-        height={size}
-        className="block w-full h-full object-cover"
-      />
+      <Image src={src} alt={alt} width={size} height={size} />
     </div>
   );
 }

@@ -3,7 +3,7 @@ export async function getProducts({
 }: {
   pageParam?: number;
 }): Promise<ProductApiResponse> {
-  const res = await fetch(`https://dummyjson.com/products?limit=20&skip=${pageParam}`);
+  const res = await fetch(`/api/products?skip=${pageParam}`);
   if (!res.ok) throw new Error('Failed to fetch products');
   return res.json();
 }

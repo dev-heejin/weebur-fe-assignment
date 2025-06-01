@@ -9,7 +9,7 @@ export async function createProduct(data: {
   discountPercentage?: number;
   brand?: string;
 }) {
-  const response = await fetch('https://dummyjson.com/products/add', {
+  const response = await fetch(`${process.env.NEXT_URL}/api/products`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

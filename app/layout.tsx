@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import './globals.css';
 import { Inter } from 'next/font/google';
-import { Footer, Header } from '@/components/layout';
+import { Footer, Header } from '../components/shared';
 import ReactQueryClientProvider from '@/app/providers/ReactQueryClientProvider';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -21,7 +21,9 @@ export default function RootLayout({
       <body className={inter.className}>
         <ReactQueryClientProvider>
           <Header />
-          <main className="relative mx-auto w-[1200px] flex flex-col pt-[20px]">{children}</main>
+          <main className="relative mx-auto w-full max-w-[1200px] px-4 flex flex-col pt-[20px]">
+            {children}
+          </main>
           <Footer />
         </ReactQueryClientProvider>
       </body>
