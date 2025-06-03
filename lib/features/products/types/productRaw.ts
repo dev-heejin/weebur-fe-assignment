@@ -1,11 +1,4 @@
-interface ProductApiResponse {
-  products: ProductRaw[];
-  total: number;
-  skip: number;
-  limit: number;
-}
-
-interface ProductRaw {
+export interface ProductRaw {
   id: number;
   title: string;
   description: string;

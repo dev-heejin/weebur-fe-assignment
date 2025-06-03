@@ -1,7 +1,7 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
-import { getProducts } from '@/lib/queries/getProducts';
+import { getProducts } from '@/lib/features/products/api/getProducts';
 
-export default function useInfinityProducts() {
+export function useProductsInfinityQuery() {
   return useInfiniteQuery({
     queryKey: ['products'],
     queryFn: ({ pageParam = 0 }) => getProducts({ pageParam }),

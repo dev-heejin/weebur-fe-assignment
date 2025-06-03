@@ -1,17 +1,18 @@
-import { ThumbnailWrapper } from '@/app/products/components/index';
+import { ThumbnailWrapper } from '@/components/shared/ui';
+import { ProductClient, ProductListViewMode } from '@/lib/features/products/types';
 
 export default function ProductCard({
   product,
   viewMode,
 }: {
-  product: Product;
-  viewMode?: 'grid' | 'list';
+  product: ProductClient;
+  viewMode?: ProductListViewMode;
 }) {
-  console.log('ProductCard', product);
+  const isGrid = viewMode === 'grid';
   return (
     <div
       className={`w-full h-full flex bg-white rounded-lg shadow-md border border-gray-300 gap-6 py-2 ${
-        viewMode === 'grid' ? 'flex-col pb-2' : 'flex-row items-start justify-start'
+        isGrid ? 'flex-col pb-2' : 'flex-row items-start justify-start'
       }`}
     >
       <div className="flex justify-center">
@@ -45,7 +46,7 @@ export default function ProductCard({
         </div>
 
         <button
-          className={`px-3 py-2 bg-blue-600 hover:bg-blue-900 font-bold text-sm text-white rounded-md ${viewMode === 'grid' ? 'w-full' : 'w-fit'}`}
+          className={`px-3 py-2 bg-blue-600 hover:bg-blue-900 font-bold text-sm text-white rounded-md ${isGrid ? 'w-full' : 'w-fit'}`}
         >
           장바구니 추가
         </button>

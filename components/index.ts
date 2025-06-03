@@ -1,3 +1,3 @@
 export * from './ui';
-export * from '../app/products/components';
-export * from './shared';
+export * from './shared/ui';
+export * from './layout';

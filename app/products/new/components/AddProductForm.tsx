@@ -1,41 +1,25 @@
 'use client';
-import { startTransition, useEffect, useRef } from 'react';
+
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { zodResolver } from '@hookform/resolvers/zod';
 import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  Input,
-  Button,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui';
-import { createProduct } from '@/lib/actions/createProduct';
-import { calculateDiscountedPrice } from '@/lib/calculateDiscountedPrice';
-
-export const brandType = z.enum(['Apple', 'Samsung', 'Weebur']);
-
-const newProductSchema = z.object({
-  title: z.string().min(1, '상품명을 입력해주세요.').max(15, '상품명은 15자 이내로 입력해주세요.'),
-  description: z.string().optional(),
-  price: z.preprocess((val) => Number(val), z.number().min(1000, '최소 1000원 이상 입력해주세요.')),
-  discountPercentage: z.preprocess((val) => Number(val), z.number().min(0).max(100)).optional(),
-  brand: brandType.optional(),
-});
+  productFormSchema,
+  ProductFormValues,
+  productRequestSchema,
+} from '@/lib/features/products/schemas';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useCreateProduct } from '@/lib/features/products/hooks/useCreateProduct';
+import { useMemo } from 'react';
+import { calculateDiscount } from '@/lib/features/products/utils';
+import { Button, Form } from '@/components/ui';
+import { FormInput, FormSelect } from '@/components/shared/ui';
+import { brandOptions } from '@/lib/features/products/constants';
 
 export default function AddProductForm() {
-  const originalPriceRef = useRef<number>(0);
-
-  const form = useForm({
-    resolver: zodResolver(newProductSchema),
+  const router = useRouter();
+  const { mutate } = useCreateProduct();
+  const form = useForm<ProductFormValues>({
+    resolver: zodResolver(productFormSchema),
     defaultValues: {
       title: '',
       description: '',
@@ -45,157 +29,90 @@ export default function AddProductForm() {
     },
   });
 
-  const price = form.watch('price') as number;
-  const discountPercentage = form.watch('discountPercentage') as number;
+  const price = form.watch('price');
+  const discountPercentage = form.watch('discountPercentage');
 
-  const onSubmit = (data: z.infer<typeof newProductSchema>) => {
-    startTransition(() => {
-      createProduct(data);
+  const discountedPrice = useMemo(() => {
+    return calculateDiscount(Number(price), Number(discountPercentage));
+  }, [price, discountPercentage]);
+
+  const onSubmit = (data: ProductFormValues) => {
+    const formattedData = productRequestSchema.safeParse({
+      ...data,
+      price: Number(data.price),
+      discountPercentage:
+        data.discountPercentage === '' ? undefined : Number(data.discountPercentage),
+    });
+
+    if (!formattedData.success) {
+      alert('입력값이 유효하지 않습니다.');
+      return;
+    }
+
+    mutate(formattedData.data, {
+      onSuccess: () => {
+        alert('상품이 성공적으로 등록되었습니다.');
+        router.push('/products');
+      },
+      onError: (error) => {
+        alert(`상품 등록에 실패했습니다: ${error.message}`);
+      },
     });
   };
-
-  const applyDiscount = () => {
-    const original = originalPriceRef.current;
-
-    if (!original) return;
-
-    const finalPrice = calculateDiscountedPrice(original, discountPercentage);
-    form.setValue('price', finalPrice, { shouldValidate: true });
-  };
-
-  const handlePriceBlur = () => {
-    if (!price) {
-      originalPriceRef.current = 0;
-      form.setError('price', {
-        type: 'manual',
-        message: '가격을 입력해주세요.',
-      });
-      form.setValue('discountPercentage', '');
-      return;
-    }
-
-    originalPriceRef.current = price;
-    form.clearErrors('discountPercentage');
-  };
-
-  const handleDiscountBlur = () => {
-    const hasPrice = price && price >= 1000;
-
-    if (!hasPrice) {
-      form.setError('discountPercentage', {
-        type: 'manual',
-        message: '가격을 먼저 입력해주세요.',
-      });
-      return;
-    }
-
-    applyDiscount();
-  };
-
-  useEffect(() => {
-    if (price > 0 && originalPriceRef.current === 0) {
-      originalPriceRef.current = price;
-    }
-
-    applyDiscount();
-  }, [discountPercentage]);
 
   return (
     <Form {...form}>
       <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
-        <FormField
+        <FormInput
           control={form.control}
           name="title"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>상품명</FormLabel>
-              <FormControl>
-                <Input placeholder="상품명을 입력해주세요." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={'상품명'}
+          type="text"
+          placeholder="상품명을 입력해주세요."
         />
-        <FormField
+
+        <FormInput
           control={form.control}
           name="description"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>상품 설명</FormLabel>
-              <FormControl>
-                <Input placeholder="상품 설명을 입력해주세요." {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={'상품 설명'}
+          type="text"
+          placeholder="상품 설명을 입력해주세요."
         />
-        <FormField
+
+        <FormInput
           control={form.control}
           name="price"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>가격</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="가격을 입력해주세요."
-                  {...field}
-                  value={field.value as number}
-                  onBlur={() => {
-                    field.onBlur();
-                    handlePriceBlur();
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={'가격'}
+          type="number"
+          placeholder="가격을 입력해주세요."
         />
-        <FormField
+
+        <FormInput
           control={form.control}
           name="discountPercentage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>할인율</FormLabel>
-              <FormControl>
-                <Input
-                  type="number"
-                  placeholder="할인율을 입력해주세요."
-                  {...field}
-                  value={field.value as number}
-                  onBlur={() => {
-                    field.onBlur();
-                    handleDiscountBlur();
-                  }}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label={'할인율'}
+          type="number"
+          placeholder="할인율을 입력해주세요."
         />
-        <FormField
+
+        <FormSelect
           control={form.control}
           name="brand"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>brand</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder={field.value} />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent className="bg-white">
-                  {brandType.options.map((option) => (
-                    <SelectItem value={option} key={option}>
-                      {option}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormItem>
-          )}
+          label="브랜드"
+          options={brandOptions}
+          placeholder="브랜드를 선택하세요"
+          className="w-[180px]"
         />
+
+        {price && (
+          <section>
+            <p className="text-sm text-gray-600">최종 금액</p>
+            <strong className="text-xl font-semibold">
+              {discountedPrice.toLocaleString()} <span className="text-base">원</span>
+            </strong>
+          </section>
+        )}
+
         <Button type="submit" variant="secondary" className="cursor-pointer">
           상품 등록
         </Button>

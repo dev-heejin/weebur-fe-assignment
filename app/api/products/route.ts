@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server';
+import { productFormSchema } from '@/lib/features/products/schemas/product.schema';
 
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
@@ -15,6 +16,8 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const data = await req.json();
+
+  console.log('Received data:', data);
 
   const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/products/add`, {
     method: 'POST',

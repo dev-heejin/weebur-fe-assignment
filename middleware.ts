@@ -6,7 +6,6 @@ export function middleware(request: NextRequest) {
 
   if (!cookie) {
     const view = Math.random() < 0.5 ? 'grid' : 'list';
-    console.log('Set view mode:', view);
     response.cookies.set('viewMode', view, {
       path: '/',
       //@TODO: Set a proper expiration date
