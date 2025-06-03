@@ -8,8 +8,7 @@ export function middleware(request: NextRequest) {
     const view = Math.random() < 0.5 ? 'grid' : 'list';
     response.cookies.set('viewMode', view, {
       path: '/',
-      //@TODO: Set a proper expiration date
-      expires: new Date(0),
+      expires: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
   }
 
